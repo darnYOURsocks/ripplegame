@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Domain Pattern Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0A0E1A;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        #info {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 14, 26, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            color: white;
+            max-width: 400px;
+            display: none;
+        }
+        
+        #info h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        
+        #info .domain {
+            margin: 5px 0;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        #info .description {
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        #info .params {
+            margin-top: 15px;
+            font-size: 12px;
+            opacity: 0.6;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info"></div>
+    
+    <script>
+        // Embedded pattern data
+        const patternData = `Node_ID,Title,Domain,CorePattern,Lambda,Delta,Psi,Description,Tags,Source,Timestamp
+NOB-20251031-001,Pattern Node 1,Ripple Frame Whiteboard,"A → B → ŊĪ(Z)",0.3,0.05,0.54,"Synthetic description for ripple cognition node","ripple frame, pattern, node",Obviology,2025-10-31 12:00:00
+NOB-20251031-002,Pattern Node 2,TPS-DNA,"A → B → ŊĪ(Z)",0.4,0.10,0.60,"Biblical-inspired emotional logic pattern","tps-dna, pattern, node",TPS,2025-10-31 12:00:00
+NOB-20251031-003,Pattern Node 3,Phoenix Protocol,"A → B → ŊĪ(Z)",0.5,0.15,0.63,"Cycle regeneration and thermodynamic cognition","phoenix, pattern, node",Phoenix,2025-10-31 12:00:00
+NOB-20251031-004,Pattern Node 4,URFT—ŊĪOB Bridge,"A → B → ŊĪ(Z)",0.6,0.20,0.67,"Bridge between physical and cognitive resonance","urft-nob, pattern, node",URFT,2025-10-31 12:00:00
+NOB-20251031-005,Pattern Node 5,CBR/TPSaiC,"A → B → ŊĪ(Z)",0.7,0.25,0.72,"Case-based reasoning behavioural pattern","cbr, tpsaic, pattern, node",CBR,2025-10-31 12:00:00
+NOB-20251031-006,Thermal-Emotional Bridge,Thermodynamics→Psychology,"Heat → Hope → ŊĪ(Z)",0.45,0.12,0.58,"Thermal rise patterns mapping to emotional elevation","thermal, emotional, bridge",Physics,2025-10-31 12:05:00
+NOB-20251031-007,Fluid-Cognitive Flow,Hydrology→Neuroscience,"Current → Thought → ŊĪ(Z)",0.52,0.18,0.61,"River flow patterns mapping to thought stream dynamics","fluid, cognitive, flow",Hydrology,2025-10-31 12:10:00
+NOB-20251031-008,Gravitational-Attraction,Physics→Sociology,"Mass → Influence → ŊĪ(Z)",0.38,0.08,0.55,"Gravity laws mapping to social attraction patterns","gravity, social, attraction",Physics,2025-10-31 12:15:00
+NOB-20251031-009,Quantum-Decision,Quantum Physics→Economics,"Superposition → Choice → ŊĪ(Z)",0.67,0.22,0.69,"Quantum states mapping to decision uncertainty","quantum, decision, economics",Quantum,2025-10-31 12:20:00
+NOB-20251031-010,Ecological-Balance,Ecology→Psychology,"Ecosystem → Mind → ŊĪ(Z)",0.49,0.14,0.59,"Ecological balance mapping to mental homeostasis","ecology, balance, mind",Ecology,2025-10-31 12:25:00
+NOB-20251031-011,Cellular-Communication,Biology→Linguistics,"Cell Signal → Language → ŊĪ(Z)",0.55,0.16,0.62,"Cellular signaling mapping to linguistic communication","cellular, language, communication",Biology,2025-10-31 12:30:00
+NOB-20251031-012,Genetic-Memory,Genetics→History,"DNA → Culture → ŊĪ(Z)",0.43,0.11,0.57,"Genetic inheritance mapping to cultural memory","genetic, memory, culture",Genetics,2025-10-31 12:35:00
+NOB-20251031-013,Optical-Perception,Optics→Epistemology,"Light → Knowledge → ŊĪ(Z)",0.61,0.19,0.65,"Light reflection mapping to knowledge perception","optics, perception, knowledge",Optics,2025-10-31 12:40:00
+NOB-20251031-014,Acoustic-Resonance,Acoustics→Empathy,"Sound Wave → Emotion → ŊĪ(Z)",0.47,0.13,0.60,"Acoustic resonance mapping to emotional resonance","acoustic, resonance, empathy",Acoustics,2025-10-31 12:45:00
+NOB-20251031-015,Magnetic-Alignment,Physics→Leadership,"Magnet → Leader → ŊĪ(Z)",0.53,0.17,0.63,"Magnetic fields mapping to leadership influence","magnetic, leadership, alignment",Physics,2025-10-31 12:50:00
+NOB-20251031-016,Chemical-Bonding,Chemistry→Relationships,"Bond → Connection → ŊĪ(Z)",0.58,0.21,0.66,"Chemical bonds mapping to human relationships","chemical, bonding, relationships",Chemistry,2025-10-31 12:55:00
+NOB-20251031-017,Entropic-Disorder,Physics→Creativity,"Entropy → Innovation → ŊĪ(Z)",0.64,0.23,0.68,"Entropic disorder mapping to creative chaos","entropy, creativity, disorder",Physics,2025-10-31 13:00:00
+NOB-20251031-018,Crystalline-Structure,Mineralogy→Institutions,"Crystal → Organization → ŊĪ(Z)",0.41,0.09,0.56,"Crystal growth mapping to institutional structures","crystalline, structure, organization",Mineralogy,2025-10-31 13:05:00
+NOB-20251031-019,Photosynthetic-Growth,Botany→Education,"Photosynthesis → Learning → ŊĪ(Z)",0.50,0.15,0.61,"Plant growth mapping to knowledge acquisition","photosynthesis, growth, learning",Botany,2025-10-31 13:10:00
+NOB-20251031-020,Neural-Network,Biology→Technology,"Neuron → Node → ŊĪ(Z)",0.66,0.24,0.70,"Biological neural networks mapping to AI systems","neural, network, ai",Biology,2025-10-31 13:15:00
+NOB-20251031-021,Tidal-Cycles,Oceanography→Economics,"Tide → Market → ŊĪ(Z)",0.44,0.12,0.58,"Ocean tides mapping to economic cycles","tidal, cycles, economics",Oceanography,2025-10-31 13:20:00
+NOB-20251031-022,Synaptic-Connection,Neuroscience→Communication,"Synapse → Dialogue → ŊĪ(Z)",0.59,0.20,0.64,"Neural synapses mapping to communication pathways","synaptic, connection, dialogue",Neuroscience,2025-10-31 13:25:00
+NOB-20251031-023,Fungal-Network,Mycology→Internet,"Mycelium → Network → ŊĪ(Z)",0.48,0.14,0.59,"Fungal networks mapping to digital connectivity","fungal, network, internet",Mycology,2025-10-31 13:30:00
+NOB-20251031-024,Orbital-Mechanics,Astronomy→Psychology,"Orbit → Attention → ŊĪ(Z)",0.54,0.18,0.62,"Planetary orbits mapping to focus patterns","orbital, attention, mechanics",Astronomy,2025-10-31 13:35:00
+NOB-20251031-025,Immunological-Defense,Immunology→Security,"Antibody → Defense → ŊĪ(Z)",0.62,0.22,0.67,"Immune response mapping to security systems","immunological, defense, security",Immunology,2025-10-31 13:40:00
+NOB-20251031-026,Metabolic-Pathway,Biochemistry→Economics,"Metabolism → Economy → ŊĪ(Z)",0.57,0.19,0.63,"Metabolic pathways mapping to economic flows","metabolic, pathway, economy",Biochemistry,2025-10-31 13:45:00
+NOB-20251031-027,Evolutionary-Adaptation,Biology→Innovation,"Evolution → Progress → ŊĪ(Z)",0.65,0.25,0.71,"Biological evolution mapping to technological innovation","evolution, adaptation, innovation",Biology,2025-10-31 13:50:00
+NOB-20251031-028,Geological-Strata,Geology→History,"Strata → Timeline → ŊĪ(Z)",0.42,0.10,0.56,"Geological layers mapping to historical records","geological, strata, history",Geology,2025-10-31 13:55:00
+NOB-20251031-029,Atmospheric-Pressure,Meteorology→Psychology,"Pressure → Stress → ŊĪ(Z)",0.46,0.13,0.57,"Atmospheric pressure mapping to psychological stress","atmospheric, pressure, stress",Meteorology,2025-10-31 14:00:00
+NOB-20251031-030,Genetic-Expression,Genetics→Education,"Gene Expression → Skill Development → ŊĪ(Z)",0.51,0.16,0.60,"Gene activation mapping to learning development","genetic, expression, education",Genetics,2025-10-31 14:05:00
+NOB-20251031-031,Quantum-Entanglement,Quantum Physics→Relationships,"Entanglement → Intimacy → ŊĪ(Z)",0.68,0.26,0.72,"Quantum entanglement mapping to deep relationships","quantum, entanglement, intimacy",Quantum,2025-10-31 14:10:00
+NOB-20251031-032,Photosynthetic-Efficiency,Botany→Productivity,"Efficiency → Productivity → ŊĪ(Z)",0.45,0.11,0.58,"Photosynthetic efficiency mapping to work productivity","photosynthesis, efficiency, productivity",Botany,2025-10-31 14:15:00
+NOB-20251031-033,Neural-Plasticity,Neuroscience→Learning,"Plasticity → Adaptability → ŊĪ(Z)",0.56,0.17,0.61,"Neural plasticity mapping to learning flexibility","neural, plasticity, learning",Neuroscience,2025-10-31 14:20:00
+NOB-20251031-034,Thermodynamic-Equilibrium,Physics→Psychology,"Equilibrium → Balance → ŊĪ(Z)",0.49,0.14,0.59,"Thermal equilibrium mapping to emotional balance","thermodynamic, equilibrium, balance",Physics,2025-10-31 14:25:00
+NOB-20251031-035,Ecological-Succession,Ecology→Personal Growth,"Succession → Development → ŊĪ(Z)",0.53,0.18,0.62,"Ecological succession mapping to personal growth","ecological, succession, growth",Ecology,2025-10-31 14:30:00
+NOB-20251031-036,Cellular-Respiration,Biology→Energy Management,"Respiration → Energy → ŊĪ(Z)",0.60,0.21,0.65,"Cellular respiration mapping to energy management","cellular, respiration, energy",Biology,2025-10-31 14:35:00
+NOB-20251031-037,Optical-Focus,Optics→Attention,"Lens → Focus → ŊĪ(Z)",0.47,0.12,0.58,"Optical focus mapping to mental attention","optical, focus, attention",Optics,2025-10-31 14:40:00
+NOB-20251031-038,Acoustic-Harmony,Acoustics→Relationships,"Harmony → Compatibility → ŊĪ(Z)",0.55,0.19,0.63,"Acoustic harmony mapping to relationship compatibility","acoustic, harmony, relationships",Acoustics,2025-10-31 14:45:00
+NOB-20251031-039,Magnetic-Polarity,Physics→Decision Making,"Polarity → Choice → ŊĪ(Z)",0.63,0.23,0.68,"Magnetic polarity mapping to decision directions","magnetic, polarity, decision",Physics,2025-10-31 14:50:00
+NOB-20251031-040,Chemical-Catalysis,Chemistry→Acceleration,"Catalyst → Accelerator → ŊĪ(Z)",0.58,0.20,0.64,"Chemical catalysts mapping to process acceleration","chemical, catalysis, acceleration",Chemistry,2025-10-31 14:55:00`;
+
+        // Parse CSV data
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const row = {};
+                headers.forEach((header, idx) => {
+                    row[header.trim()] = values[idx]?.trim().replace(/"/g, '');
+                });
+                
+                row.Lambda = parseFloat(row.Lambda) || 0.5;
+                row.Delta = parseFloat(row.Delta) || 0.1;
+                row.Psi = parseFloat(row.Psi) || 0.6;
+                
+                data.push(row);
+            }
+            
+            return data;
+        }
+
+        const patterns = parseCSV(patternData);
+        
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const info = document.getElementById('info');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let time = 0;
+        let animationId;
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        // Animation loop
+        function animate() {
+            time += 0.008;
+            
+            ctx.fillStyle = '#0A0E1A';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const numLines = Math.min(patterns.length, Math.floor(canvas.width / 8));
+            const lineSpacing = canvas.width / numLines;
+            
+            // Draw patterns as vertical bars
+            for (let i = 0; i < numLines; i++) {
+                const pattern = patterns[i % patterns.length];
+                const x = i * lineSpacing + lineSpacing / 2;
+                
+                const baseHeight = canvas.height * 0.6;
+                const heightModulation = Math.sin(time + i * 0.2) * 0.2 + 1;
+                const height = baseHeight * pattern.Lambda * heightModulation;
+                
+                const baseWidth = 2 + pattern.Delta * 30;
+                const widthPulse = Math.sin(time * 2 + i * 0.3) * 0.1 + 1;
+                const width = baseWidth * widthPulse;
+                
+                const segments = Math.floor(5 + pattern.Psi * 10);
+                const segmentHeight = height / segments;
+                
+                for (let s = 0; s < segments; s++) {
+                    const segmentY = canvas.height / 2 - height / 2 + s * segmentHeight;
+                    
+                    const hue = (pattern.Psi * 360 + time * 20) % 360;
+                    const saturation = 70 + pattern.Delta * 30;
+                    const lightness = 40 + Math.sin(time + s * 0.5) * 15;
+                    
+                    const alpha = (s % 2 === 0) ? 0.8 : 0.4;
+                    
+                    ctx.fillStyle = `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+                    
+                    const segmentYOffset = Math.sin(time * 3 + i * 0.2 + s * 0.4) * 3;
+                    ctx.fillRect(
+                        x - width / 2,
+                        segmentY + segmentYOffset,
+                        width,
+                        segmentHeight * 0.85
+                    );
+                }
+                
+                // Vertical connecting line
+                ctx.strokeStyle = `hsla(${(pattern.Psi * 360) % 360}, 50%, 30%, 0.3)`;
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(x, canvas.height / 2 - height / 2);
+                ctx.lineTo(x, canvas.height / 2 + height / 2);
+                ctx.stroke();
+                
+                // Connection waves between similar patterns
+                if (i < numLines - 1) {
+                    const nextPattern = patterns[(i + 1) % patterns.length];
+                    const similarity = Math.abs(pattern.Psi - nextPattern.Psi);
+                    
+                    if (similarity < 0.1) {
+                        const wave = Math.sin(time * 2 - i * 0.3) * 20;
+                        ctx.strokeStyle = `hsla(${(pattern.Psi * 360) % 360}, 70%, 50%, 0.2)`;
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(x, canvas.height / 2 + wave);
+                        ctx.bezierCurveTo(
+                            x + lineSpacing / 3, canvas.height / 2 + wave * 1.5,
+                            x + lineSpacing * 2 / 3, canvas.height / 2 - wave * 1.5,
+                            x + lineSpacing, canvas.height / 2 - wave
+                        );
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            // Title and legend
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.fillText('Cross-Domain Pattern Network', 30, 50);
+            
+            ctx.font = '14px sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.fillText(`${patterns.length} Pattern Nodes Visualized`, 30, 75);
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.font = '12px monospace';
+            ctx.fillText('Height: Lambda (Pattern Strength)', 30, canvas.height - 60);
+            ctx.fillText('Width: Delta (Variation)', 30, canvas.height - 40);
+            ctx.fillText('Color: Psi (Resonance)', 30, canvas.height - 20);
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        // Start animation
+        animate();
+        
+        // Click to show random pattern info
+        canvas.addEventListener('click', (e) => {
+            const randomPattern = patterns[Math.floor(Math.random() * patterns.length)];
+            
+            info.innerHTML = `
+                <h3>${randomPattern.Title}</h3>
+                <div class="domain">${randomPattern.Domain}</div>
+                <div class="description">${randomPattern.Description}</div>
+                <div class="params">λ: ${randomPattern.Lambda} | δ: ${randomPattern.Delta} | ψ: ${randomPattern.Psi}</div>
+            `;
+            info.style.display = 'block';
+            
+            setTimeout(() => {
+                info.style.display = 'none';
+            }, 5000);
+        });
+        
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+        });
+    </script>
+</body>
+</html>
