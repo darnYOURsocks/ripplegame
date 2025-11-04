@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Judo - Marketing Training Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .player-section, .opponent-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .character {
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .player-character, .opponent-character {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .opponent-character {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .health-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        
+        .opponent-health .health-fill {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-attack {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+        
+        .btn-defend {
+            background: linear-gradient(to right, #3498db, #2980b9);
+        }
+        
+        .btn-special {
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+        }
+        
+        .btn-heal {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+        
+        .game-log {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            animation: fadeIn 0.5s;
+        }
+        
+        .player-log {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 4px solid #3498db;
+        }
+        
+        .opponent-log {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .system-log {
+            background: rgba(243, 156, 18, 0.2);
+            border-left: 4px solid #f39c12;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .training-section {
+            margin-top: 30px;
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .training-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #f39c12;
+        }
+        
+        .training-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .training-card {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .training-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            margin-top: 10px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+        
+        .phase-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        
+        .phase {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+        
+        .phase.active {
+            background: #f39c12;
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SALES JUDO</h1>
+        <div class="subtitle">Master the Art of Marketing & Mental Resilience</div>
+    </header>
+    
+    <div class="container">
+        <div class="phase-indicator">
+            <div class="phase active">Δ</div>
+            <div class="phase">Λ</div>
+            <div class="phase">Ψ</div>
+        </div>
+        
+        <div class="game-area">
+            <div class="player-section">
+                <h2>MARKETING WARRIOR</h2>
+                <div class="character">
+                    <div class="player-character">💼</div>
+                </div>
+                <div class="health-bar">
+                    <div class="health-fill" id="player-health" style="width: 100%;"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">FOCUS</div>
+                        <div class="stat-value" id="player-focus">100</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">CLARITY</div>
+                        <div class="stat-value" id="player-clarity">100</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">ENERGY</div>
+                        <div class="stat-value" id="player-energy">100</div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn btn-attack" id="btn-pitch">PITCH ATTACK</button>
+                    <button class="btn btn-defend" id="btn-listen">ACTIVE LISTENING</button>
+                    <button class="btn btn-special" id="btn-strategy">STRATEGY SHIFT</button>
+                    <button class="btn btn-heal" id="btn-reflect">REFLECT & ADAPT</button>
+                </div>
+            </div>
+            
+            <div class="opponent-section">
+                <h2>PROSPECT RESISTANCE</h2>
+                <div class="character">
+                    <div class="opponent-character">🚫</div>
+                </div>
+                <div class="health-bar opponent-health">
+                    <div class="health-fill" id="opponent-health" style="width: 100%;"></div>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-label">RESISTANCE</div>
+                        <div class="stat-value" id="opponent-resistance">100</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">SKEPTICISM</div>
+                        <div class="stat-value" id="opponent-skepticism">100</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">PRESSURE</div>
+                        <div class="stat-value" id="opponent-pressure">100</div>
+                    </div>
+                </div>
+                
+                <div class="opponent-move">
+                    <h3>Prospect's Next Move:</h3>
+                    <div id="opponent-next-move">Objection</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-log" id="game-log">
+            <div class="log-entry system-log">Welcome to Sales Judo! Use your marketing skills to overcome prospect resistance.</div>
+            <div class="log-entry system-log">Remember the TPS-Peace method: Recognize stress (Δ), pause (Λ), and integrate (Ψ).</div>
+        </div>
+        
+        <div class="training-section">
+            <h2 class="training-title">TPS-PEACE TRAINING METRICS</h2>
+            <div class="training-content">
+                <div class="training-card">
+                    <div class="training-icon">💓</div>
+                    <h3>HEART RATE VARIABILITY</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="hrv-progress" style="width: 40%;"></div>
+                    </div>
+                    <div class="stat-value" id="hrv-value">40%</div>
+                </div>
+                
+                <div class="training-card">
+                    <div class="training-icon">🧠</div>
+                    <h3>COGNITIVE CLARITY</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="clarity-progress" style="width: 60%;"></div>
+                    </div>
+                    <div class="stat-value" id="clarity-value">60%</div>
+                </div>
+                
+                <div class="training-card">
+                    <div class="training-icon">⚡</div>
+                    <h3>STRESS RECOVERY</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="recovery-progress" style="width: 30%;"></div>
+                    </div>
+                    <div class="stat-value" id="recovery-value">30%</div>
+                </div>
+                
+                <div class="training-card">
+                    <div class="training-icon">🔄</div>
+                    <h3>PHASE INTEGRATION</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="integration-progress" style="width: 50%;"></div>
+                    </div>
+                    <div class="stat-value" id="integration-value">50%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            player: {
+                health: 100,
+                focus: 100,
+                clarity: 100,
+                energy: 100
+            },
+            opponent: {
+                health: 100,
+                resistance: 100,
+                skepticism: 100,
+                pressure: 100
+            },
+            trainingMetrics: {
+                hrv: 40,
+                clarity: 60,
+                recovery: 30,
+                integration: 50
+            },
+            phase: 'delta', // delta, lambda, psi
+            gameLog: []
+        };
+
+        // DOM elements
+        const playerHealth = document.getElementById('player-health');
+        const playerFocus = document.getElementById('player-focus');
+        const playerClarity = document.getElementById('player-clarity');
+        const playerEnergy = document.getElementById('player-energy');
+        
+        const opponentHealth = document.getElementById('opponent-health');
+        const opponentResistance = document.getElementById('opponent-resistance');
+        const opponentSkepticism = document.getElementById('opponent-skepticism');
+        const opponentPressure = document.getElementById('opponent-pressure');
+        const opponentNextMove = document.getElementById('opponent-next-move');
+        
+        const gameLog = document.getElementById('game-log');
+        
+        const hrvProgress = document.getElementById('hrv-progress');
+        const hrvValue = document.getElementById('hrv-value');
+        const clarityProgress = document.getElementById('clarity-progress');
+        const clarityValue = document.getElementById('clarity-value');
+        const recoveryProgress = document.getElementById('recovery-progress');
+        const recoveryValue = document.getElementById('recovery-value');
+        const integrationProgress = document.getElementById('integration-progress');
+        const integrationValue = document.getElementById('integration-value');
+        
+        // Buttons
+        const btnPitch = document.getElementById('btn-pitch');
+        const btnListen = document.getElementById('btn-listen');
+        const btnStrategy = document.getElementById('btn-strategy');
+        const btnReflect = document.getElementById('btn-reflect');
+
+        // Initialize game
+        function initGame() {
+            updateUI();
+            setOpponentNextMove();
+            
+            // Add event listeners
+            btnPitch.addEventListener('click', () => performAction('pitch'));
+            btnListen.addEventListener('click', () => performAction('listen'));
+            btnStrategy.addEventListener('click', () => performAction('strategy'));
+            btnReflect.addEventListener('click', () => performAction('reflect'));
+            
+            logMessage("System", "Game initialized. Use your sales techniques to overcome resistance!");
+        }
+
+        // Update UI based on game state
+        function updateUI() {
+            // Player stats
+            playerHealth.style.width = `${gameState.player.health}%`;
+            playerFocus.textContent = gameState.player.focus;
+            playerClarity.textContent = gameState.player.clarity;
+            playerEnergy.textContent = gameState.player.energy;
+            
+            // Opponent stats
+            opponentHealth.style.width = `${gameState.opponent.health}%`;
+            opponentResistance.textContent = gameState.opponent.resistance;
+            opponentSkepticism.textContent = gameState.opponent.skepticism;
+            opponentPressure.textContent = gameState.opponent.pressure;
+            
+            // Training metrics
+            hrvProgress.style.width = `${gameState.trainingMetrics.hrv}%`;
+            hrvValue.textContent = `${gameState.trainingMetrics.hrv}%`;
+            clarityProgress.style.width = `${gameState.trainingMetrics.clarity}%`;
+            clarityValue.textContent = `${gameState.trainingMetrics.clarity}%`;
+            recoveryProgress.style.width = `${gameState.trainingMetrics.recovery}%`;
+            recoveryValue.textContent = `${gameState.trainingMetrics.recovery}%`;
+            integrationProgress.style.width = `${gameState.trainingMetrics.integration}%`;
+            integrationValue.textContent = `${gameState.trainingMetrics.integration}%`;
+            
+            // Update phase indicator
+            const phases = document.querySelectorAll('.phase');
+            phases.forEach((phase, index) => {
+                phase.classList.remove('active');
+            });
+            
+            if (gameState.phase === 'delta') {
+                phases[0].classList.add('active');
+            } else if (gameState.phase === 'lambda') {
+                phases[1].classList.add('active');
+            } else if (gameState.phase === 'psi') {
+                phases[2].classList.add('active');
+            }
+        }
+
+        // Set opponent's next move
+        function setOpponentNextMove() {
+            const moves = [
+                "Price Objection",
+                "Need Clarification",
+                "Competitor Mention",
+                "Decision Delay",
+                "Feature Request",
+                "Budget Concern"
+            ];
+            const randomMove = moves[Math.floor(Math.random() * moves.length)];
+            opponentNextMove.textContent = randomMove;
+        }
+
+        // Perform player action
+        function performAction(action) {
+            let playerDamage = 0;
+            let opponentDamage = 0;
+            let message = "";
+            
+            switch(action) {
+                case 'pitch':
+                    playerDamage = Math.floor(Math.random() * 5) + 5;
+                    opponentDamage = Math.floor(Math.random() * 15) + 10;
+                    message = "You deliver a compelling value proposition!";
+                    gameState.trainingMetrics.clarity = Math.min(100, gameState.trainingMetrics.clarity + 5);
+                    break;
+                    
+                case 'listen':
+                    playerDamage = 0;
+                    opponentDamage = Math.floor(Math.random() * 10) + 5;
+                    message = "You practice active listening and understand the prospect's needs.";
+                    gameState.trainingMetrics.hrv = Math.min(100, gameState.trainingMetrics.hrv + 8);
+                    break;
+                    
+                case 'strategy':
+                    playerDamage = Math.floor(Math.random() * 3) + 2;
+                    opponentDamage = Math.floor(Math.random() * 20) + 15;
+                    message = "You shift your approach based on the prospect's feedback!";
+                    gameState.trainingMetrics.integration = Math.min(100, gameState.trainingMetrics.integration + 10);
+                    break;
+                    
+                case 'reflect':
+                    playerDamage = 0;
+                    opponentDamage = Math.floor(Math.random() * 8) + 5;
+                    message = "You pause to reflect and regain mental clarity.";
+                    gameState.player.energy = Math.min(100, gameState.player.energy + 15);
+                    gameState.trainingMetrics.recovery = Math.min(100, gameState.trainingMetrics.recovery + 12);
+                    break;
+            }
+            
+            // Apply damage
+            gameState.player.focus = Math.max(0, gameState.player.focus - playerDamage);
+            gameState.opponent.resistance = Math.max(0, gameState.opponent.resistance - opponentDamage);
+            
+            // Update health based on stats
+            gameState.player.health = Math.max(0, 
+                (gameState.player.focus + gameState.player.clarity + gameState.player.energy) / 3
+            );
+            
+            gameState.opponent.health = Math.max(0, 
+                (gameState.opponent.resistance + gameState.opponent.skepticism + gameState.opponent.pressure) / 3
+            );
+            
+            // Log action
+            logMessage("Player", message);
+            
+            // Opponent's turn
+            opponentTurn();
+            
+            // Check win/lose conditions
+            checkGameStatus();
+            
+            // Update UI
+            updateUI();
+        }
+
+        // Opponent's turn
+        function opponentTurn() {
+            const moves = [
+                { type: "objection", damage: 10, message: "The prospect raises a price objection." },
+                { type: "question", damage: 8, message: "The prospect asks a challenging question." },
+                { type: "delay", damage: 5, message: "The prospect wants to delay the decision." },
+                { type: "comparison", damage: 12, message: "The prospect compares you to a competitor." }
+            ];
+            
+            const move = moves[Math.floor(Math.random() * moves.length)];
+            
+            // Apply damage to player stats
+            gameState.player.focus = Math.max(0, gameState.player.focus - move.damage / 2);
+            gameState.player.clarity = Math.max(0, gameState.player.clarity - move.damage / 3);
+            gameState.player.energy = Math.max(0, gameState.player.energy - move.damage / 4);
+            
+            // Update player health
+            gameState.player.health = Math.max(0, 
+                (gameState.player.focus + gameState.player.clarity + gameState.player.energy) / 3
+            );
+            
+            // Log opponent move
+            logMessage("Prospect", move.message);
+            
+            // Set next move
+            setOpponentNextMove();
+            
+            // Occasionally change phase
+            if (Math.random() > 0.7) {
+                changePhase();
+            }
+        }
+
+        // Change TPS phase
+        function changePhase() {
+            const phases = ['delta', 'lambda', 'psi'];
+            const currentIndex = phases.indexOf(gameState.phase);
+            const nextIndex = (currentIndex + 1) % phases.length;
+            gameState.phase = phases[nextIndex];
+            
+            const phaseNames = {
+                'delta': 'Δ (Activation)',
+                'lambda': 'Λ (Pause)',
+                'psi': 'Ψ (Integration)'
+            };
+            
+            logMessage("System", `Phase changed to ${phaseNames[gameState.phase]}`);
+        }
+
+        // Check game status
+        function checkGameStatus() {
+            if (gameState.player.health <= 0) {
+                logMessage("System", "You've lost focus and the prospect has disengaged. Practice your TPS-Peace techniques!");
+                resetGame();
+            } else if (gameState.opponent.health <= 0) {
+                logMessage("System", "Congratulations! You've successfully handled the prospect's objections and closed the deal!");
+                resetGame();
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            setTimeout(() => {
+                gameState.player = {
+                    health: 100,
+                    focus: 100,
+                    clarity: 100,
+                    energy: 100
+                };
+                
+                gameState.opponent = {
+                    health: 100,
+                    resistance: 100,
+                    skepticism: 100,
+                    pressure: 100
+                };
+                
+                gameState.phase = 'delta';
+                
+                updateUI();
+                setOpponentNextMove();
+                logMessage("System", "New engagement started. Apply your sales judo skills!");
+            }, 3000);
+        }
+
+        // Log message to game log
+        function logMessage(sender, message) {
+            const logEntry = document.createElement('div');
+            
+            if (sender === "Player") {
+                logEntry.className = "log-entry player-log";
+                logEntry.innerHTML = `<strong>You:</strong> ${message}`;
+            } else if (sender === "Prospect") {
+                logEntry.className = "log-entry opponent-log";
+                logEntry.innerHTML = `<strong>Prospect:</strong> ${message}`;
+            } else {
+                logEntry.className = "log-entry system-log";
+                logEntry.innerHTML = `<strong>System:</strong> ${message}`;
+            }
+            
+            gameLog.appendChild(logEntry);
+            gameLog.scrollTop = gameLog.scrollHeight;
+            
+            // Keep only last 10 messages
+            if (gameLog.children.length > 10) {
+                gameLog.removeChild(gameLog.firstChild);
+            }
+        }
+
+        // Initialize the game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+</html>
